@@ -30,11 +30,12 @@
     },
     {
       "parameters": {
-        "functionCode": "// ─── IDEMPOTENCY CHECK ───\n// Generate SHA-256 hash of sorted input to detect duplicate uploads.\nconst crypto = require('crypto');\nconst rawData = JSON.stringify($input.all().map(i => i.json).sort((a,b) => \n  `${a.employee_id}_${a.date}_${a.time}`.localeCompare(`${b.employee_id}_${b.date}_${b.time}`)\n));\nconst fileHash = crypto.createHash('sha256').update(rawData).digest('hex');\n\n// ─── CONSOLIDATION LOGIC ───\nconst LATE_HOUR = 11;\nconst TZ = '+05:30';\nconst items = $input.all();\nconst grouped = {};\n\nfor (const item of items) {\n  const r = item.json;\n  const eid = (r.employee_id || r.Employee_ID || '').toString().trim();\n  const name = (r.name || r.Name || '').toString().trim();\n  const date = r.date || r.Date;\n  const time = (r.time || r.Time || '').toString().trim();\n  const status = (r.status || r.Status || r.punch_status || '').toString().trim().toUpperCase();\n  \n  if (!eid || !date || (status !== 'IN' && status !== 'OUT')) continue;\n  \n  const key = `${eid}__${date}`;\n  if (!grouped[key]) grouped[key] = { employee_id: eid, name, date, inTimes: [], outTimes: [], count: 0 };\n  grouped[key].count++;\n  \n  if (time && status === 'IN') grouped[key].inTimes.push(time);\n  if (time && status === 'OUT') grouped[key].outTimes.push(time);\n}\n\nconst results = Object.values(grouped).map(g => {\n  g.inTimes.sort();\n  g.outTimes.sort();\n  const checkIn = g.inTimes[0] || null;\n  const checkOut = g.outTimes[g.outTimes.length - 1] || null;\n  let late = false;\n  if (checkIn) {\n    const h = parseInt(checkIn.split(':')[0], 10);\n    const m = parseInt(checkIn.split(':')[1], 10);\n    late = (h > LATE_HOUR) || (h === LATE_HOUR && m > 0);\n  }\n  return {\n    json: {\n      employee_id: g.employee_id,\n      name: g.name,\n      date: g.date,\n      check_in: checkIn ? `${g.date}T${checkIn}${TZ}` : null,\n      check_out: checkOut ? `${g.date}T${checkOut}${TZ}` : null,\n      late_flag: late,\n      missing_punch: !checkIn || !checkOut,\n      raw_punch_count: g.count,\n      month_year: g.date.substring(0, 7),\n      file_hash: fileHash\n    }\n  };\n});\n\nreturn results;"
+        "command": "echo '{{ JSON.stringify($input.all().map(i => i.json)) }}' | python logic.py",
+        "options": {}
       },
       "id": "node-consolidate",
-      "name": "Function: Consolidate Punches",
-      "type": "n8n-nodes-base.functionItem",
+      "name": "Execute: Consolidate Punches (Python)",
+      "type": "n8n-nodes-base.executeCommand",
       "typeVersion": 1,
       "position": [640, 300]
     },
@@ -238,9 +239,9 @@
       "main": [[{ "node": "Read Excel File", "type": "main", "index": 0 }]]
     },
     "Read Excel File": {
-      "main": [[{ "node": "Function: Consolidate Punches", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Execute: Consolidate Punches (Python)", "type": "main", "index": 0 }]]
     },
-    "Function: Consolidate Punches": {
+    "Execute: Consolidate Punches (Python)": {
       "main": [[{ "node": "PostgreSQL: Upsert Records", "type": "main", "index": 0 }]]
     },
     "PostgreSQL: Upsert Records": {

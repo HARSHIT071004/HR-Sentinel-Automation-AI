@@ -1,0 +1,22 @@
+# =============================================================================
+# Growify — Python Dependencies
+# =============================================================================
+# The core logic (logic.py) uses only Python standard library modules
+# (json, hashlib, sys, datetime). No external packages are required.
+#
+# The dependencies below are OPTIONAL and only needed if you plan to
+# extend the project beyond n8n (e.g., build a standalone Python backend).
+# =============================================================================
+
+# --- Optional: Direct Database Access (if bypassing n8n) ---
+# psycopg2-binary==2.9.9
+
+# --- Optional: Direct OpenAI Integration (if bypassing n8n) ---
+# openai==1.55.0
+
+# --- Optional: Excel File Parsing (if reading .xlsx in Python) ---
+# openpyxl==3.1.5
+
+# --- Optional: REST API Server (if building a Python backend) ---
+# fastapi==0.115.0
+# uvicorn==0.32.0
