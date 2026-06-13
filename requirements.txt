@@ -1,22 +1,17 @@
-# =============================================================================
-# Growify — Python Dependencies
-# =============================================================================
-# The core logic (logic.py) uses only Python standard library modules
-# (json, hashlib, sys, datetime). No external packages are required.
-#
-# The dependencies below are OPTIONAL and only needed if you plan to
-# extend the project beyond n8n (e.g., build a standalone Python backend).
-# =============================================================================
-
-# --- Optional: Direct Database Access (if bypassing n8n) ---
-# psycopg2-binary==2.9.9
-
-# --- Optional: Direct OpenAI Integration (if bypassing n8n) ---
-# openai==1.55.0
-
-# --- Optional: Excel File Parsing (if reading .xlsx in Python) ---
-# openpyxl==3.1.5
-
-# --- Optional: REST API Server (if building a Python backend) ---
-# fastapi==0.115.0
-# uvicorn==0.32.0
+# HR Sentinel AI — Backend Dependencies
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+sqlalchemy>=2.0.0
+aiosqlite>=0.20.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+openpyxl>=3.1.0
+openai>=1.0.0
+python-multipart>=0.0.12
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.0
+faiss-cpu>=1.8.0
+numpy>=1.24.0
+alembic>=1.13.0
+aiofiles>=24.0.0

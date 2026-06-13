@@ -1,0 +1,63 @@
+# Mimocode (opencode working files)
+.mimocode/
+
+# Stale documentation / plan files (no longer maintained)
+*blueprint*.md
+*plan*.md
+*summary*.md
+*analysis*.md
+*evaluation*.md
+*explanation*.md
+*guide*.md
+*status*.md
+*report*.md
+prompts.md
+workflow.json
+schema.sql
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads & generated files
+uploads/
+faiss_data/
+*.xlsx
+*.csv
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Node
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.vite/
+
+# Alembic
+backend/alembic/versions/
+
+# Logs
+*.log

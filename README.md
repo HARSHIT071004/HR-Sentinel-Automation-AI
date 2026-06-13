@@ -1,127 +1,188 @@
-# HR Sentinel Automation AI
+# HR Sentinel AI — Workforce Intelligence Platform
 
-HR Sentinel Automation AI is an enterprise-grade automated HR system that processes biometric attendance logs, detects late arrivals and missing punches, and triggers AI-powered escalation workflows via Gmail and Google Calendar. The system combines Python-based rule processing, workflow automation, AI-generated communication, and a real-time dashboard.
+AI-powered attendance management with real-time dashboards, risk scoring, behavior analysis, and RAG document chat.
+
+---
+
+## Features
+
+- **Upload** Excel/CSV files — auto-creates employee profiles
+- **Dashboard** — real-time stats: total employees, present, late, missing punches
+- **Employees** — directory with per-employee AI risk scoring
+- **AI Insights** — risk scores (0–100) + behavior analysis with LLM reasoning
+- **Delete** files — cascading cleanup removes records, employees, and AI data
+- **RAG Copilot** — chat with HR policies via FAISS vector search
+- **90-day analysis** — AI looks back up to 90 days for trend detection
 
 ---
 
 ## Quick Start
 
-### 1. Database Setup (PostgreSQL 15+)
+### Prerequisites
+- Python 3.12+
+- Node.js 18+
+
+### 1. Backend Setup
 ```bash
-psql -U your_user -d your_db -f schema.sql
+cd backend
+pip install -r ..\requirements.txt
 ```
 
-### 2. Install Python Dependencies
-```bash
-pip install -r requirements.txt
+### 2. Environment
+Create `backend\.env`:
+```env
+OPENAI_API_KEY=sk-or-v1-...    # Get free at https://openrouter.ai/keys
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
+OPENAI_MODEL=openrouter/free
 ```
 
-> Note: The core logic uses only Python standard library. The requirements file includes optional dependencies for extended integrations beyond n8n.
+Without `.env`, the AI falls back to rule-based scoring — everything else still works.
 
-### 3. Dashboard Setup (React / Vite)
+### 3. Seed Database (first time only)
+```bash
+cd backend
+python seed.py
+# Creates: admin@aegis.com / admin123
+#          hr@aegis.com   / hr123
+```
+
+### 4. Start Backend
+```bash
+cd backend
+python -m uvicorn app.main:app --port 8080
+```
+
+### 5. Frontend Setup
 ```bash
 cd dashboard
 npm install
 npm run dev
 ```
 
-The dashboard will be available at:
+### 6. Login
 ```
 http://localhost:5173
+Email: hr@aegis.com
+Pass:  hr123
 ```
 
-### 4. Automation Setup (n8n)
-1. Import `workflow.json` into your n8n instance  
-2. Configure credentials:
-   - PostgreSQL for database operations  
-   - OpenAI for AI-generated warning emails  
-   - Gmail for sending notifications  
-   - Google Calendar for scheduling HR meetings  
-3. Ensure `logic.py` is accessible from the n8n execution environment  
-
-### 5. Running Logic Standalone (Optional)
+### 7. Generate Test Data (optional)
 ```bash
-python logic.py data.json
-cat data.json | python logic.py
-```
-
-### 6. Running Tests
-```bash
-python test_logic.py
+cd backend
+python generate_excel.py
+# Creates attendance_50_employees.xlsx (50 employees, 5 days)
 ```
 
 ---
 
-## Core Logic (logic.py)
+## Uploading Files
 
-All attendance processing is handled in a single Python module, which acts as the system’s core decision engine.
+| Format | Column Headers (any case/spacing work) |
+|--------|----------------------------------------|
+| `.xlsx` | `Employee ID`, `Name`, `Date`, `Time`, `Status` |
+| `.xls` | Same as above |
+| `.csv` | Same as above |
 
-### Attendance Processing Pipeline
-1. Group attendance logs by Employee ID and Date  
-2. Extract earliest IN as check-in and latest OUT as check-out  
-3. Flag late arrivals if check-in is after 11:00 AM IST  
-4. Detect missing IN or OUT punches  
-5. Prevent duplicate processing using SHA-256 hashing  
-
----
-
-### Strike Escalation System
-The system maintains a rolling monthly strike count per employee:
-
-- Strike 1: Friendly reminder email generated using AI  
-- Strike 2: Formal warning email with escalation context  
-- Strike 3: Critical escalation and mandatory HR meeting scheduled via Google Calendar  
+Accepted header variations: `employee_id`, `Emp ID`, `Employee Code`, `employee name`, `Full Name`, etc.
 
 ---
 
-## Project Structure
+## Architecture
+
+```
+Frontend (React/Vite :5173)
+    │ proxy /api → :8080
+    ▼
+Backend (FastAPI :8080)
+    ├── API Routes  ───  Services  ───  Repositories
+    └── SQLite DB (hr_sentinel.db)
+    └── FAISS Vector Store (RAG)
+    └── OpenRouter AI (free model)
+```
+
+### Project Layout
 
 ```
 HR-Sentinel-Automation-AI/
-├── logic.py
-├── test_logic.py
-├── workflow.json
-├── schema.sql
-├── prompts.md
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/       # Routes (auth, employees, attendance, ai, copilot...)
+│   │   ├── core/          # Config, AI client, security, vector store
+│   │   ├── models/        # SQLAlchemy models
+│   │   ├── repositories/  # Database queries
+│   │   ├── schemas/       # Pydantic response models
+│   │   ├── services/      # Business logic (attendance, AI, copilot...)
+│   │   └── utils/         # Document ingestion, types
+│   ├── seed.py
+│   ├── generate_excel.py
+│   └── ingest_documents.py  # Populate FAISS with HR policies
+├── dashboard/
+│   └── src/
+│       ├── pages/         # Dashboard, Employees, Attendance, AI Insights
+│       ├── stores/        # Zustand auth store
+│       ├── api/           # Axios client with JWT interceptor
+│       └── components/    # UI components
 ├── requirements.txt
-├── README.md
-└── dashboard/
-    ├── src/
-    │   ├── App.tsx
-    │   ├── index.css
-    │   └── main.tsx
-    ├── index.html
-    ├── package.json
-    ├── tsconfig.json
-    └── vite.config.ts
+├── .gitignore
+└── README.md
 ```
 
 ---
 
-## File Responsibilities
+## API Endpoints
 
-| File | Role | Description |
-|------|------|-------------|
-| logic.py | Core Engine | Processes biometric attendance logs and detects anomalies |
-| test_logic.py | Test Suite | Validates attendance logic across multiple scenarios |
-| workflow.json | Automation Orchestrator | n8n workflow integrating Python, PostgreSQL, OpenAI, Gmail, and Google Calendar |
-| schema.sql | Database Layer | Defines schema, indexes, triggers, and dashboard views |
-| prompts.md | AI Layer | Structured prompts for HR escalation email generation |
-| requirements.txt | Dependencies | Optional Python libraries for extended integrations |
-| dashboard/src/App.tsx | Frontend UI | Displays attendance status, strikes, and AI insights |
-| dashboard/src/index.css | UI System | Styling and layout system |
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/auth/login` | POST | Login |
+| `/api/v1/employees` | GET | List employees (paginated) |
+| `/api/v1/dashboard/stats` | GET | Dashboard statistics |
+| `/api/v1/dashboard/feed` | GET | Today's attendance feed |
+| `/api/v1/attendance/upload` | POST | Upload Excel/CSV |
+| `/api/v1/attendance/files` | GET | List uploaded files |
+| `/api/v1/attendance/files/{id}` | DELETE | Delete file + cascade cleanup |
+| `/api/v1/ai/risk/{employee_id}` | GET | AI risk score |
+| `/api/v1/ai/behavior/{employee_id}` | GET | AI behavior analysis |
+| `/api/v1/copilot/chat` | POST | RAG chat with HR policies |
+
+---
+
+## RAG Copilot
+
+The copilot uses FAISS vector search to answer HR policy questions:
+
+```bash
+# Populate FAISS with default policies
+cd backend
+python ingest_documents.py
+```
+
+Then chat via the API or frontend (when added):
+```bash
+curl -X POST http://localhost:5173/api/v1/copilot/chat \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is the attendance policy about late arrivals?"}'
+```
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|------|------------|
-| Orchestration | n8n Workflow Automation |
-| Core Logic | Python |
-| AI Layer | OpenAI GPT-4o |
-| Database | PostgreSQL 15+ |
-| Frontend | React 18, Vite, TypeScript |
-| Email Service | Gmail API |
-| Scheduling | Google Calendar API |
-```
+|-------|------------|
+| Backend | Python, FastAPI, SQLAlchemy 2.0, SQLite |
+| Frontend | React 18, Vite, TypeScript, Tailwind CSS |
+| AI | OpenRouter (free model), rule-based fallback |
+| RAG | FAISS, keyword + vector search |
+| Auth | JWT (python-jose), bcrypt |
+| State | Zustand, TanStack React Query |
+
+---
+
+## Contributing
+
+1. Fork the repo
+2. Create a feature branch
+3. Run `pip install -r requirements.txt` and `npm install`
+4. Start both servers
+5. Make changes, verify with `python seed.py` and a test upload

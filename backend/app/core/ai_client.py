@@ -1,0 +1,65 @@
+import time
+import json
+import logging
+from openai import AsyncOpenAI
+from app.config import settings
+
+logger = logging.getLogger(__name__)
+
+
+class AIClient:
+    def __init__(self):
+        if settings.OPENAI_API_KEY:
+            self.client = AsyncOpenAI(
+                api_key=settings.OPENAI_API_KEY,
+                base_url=settings.OPENAI_BASE_URL,
+            )
+        else:
+            self.client = None
+        self.model = settings.OPENAI_MODEL
+
+    async def generate(self, system_prompt: str, user_prompt: str, model: str | None = None, temperature: float = 0.3, max_tokens: int = 2000, retries: int = 2) -> dict:
+        use_model = model or self.model
+        if not self.client:
+            return self._fallback(use_model, system_prompt, user_prompt)
+
+        last_error = None
+        for attempt in range(retries + 1):
+            start_time = time.time()
+            try:
+                response = await self.client.chat.completions.create(
+                    model=use_model,
+                    messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+                    temperature=temperature, max_tokens=max_tokens,
+                )
+                latency_ms = int((time.time() - start_time) * 1000)
+                choice = response.choices[0]
+                usage = response.usage
+                return {"content": choice.message.content, "model": use_model, "prompt_tokens": usage.prompt_tokens if usage else 0, "completion_tokens": usage.completion_tokens if usage else 0, "total_tokens": (usage.prompt_tokens + usage.completion_tokens) if usage else 0, "cost_usd": 0.0, "latency_ms": latency_ms}
+            except Exception as e:
+                last_error = e
+                if attempt < retries:
+                    time.sleep(1)
+        return self._fallback(use_model, system_prompt, user_prompt)
+
+    def _fallback(self, model: str, system_prompt: str, user_prompt: str) -> dict:
+        return {"content": None, "model": model, "prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0, "cost_usd": 0.0, "latency_ms": 0, "error": "API unavailable"}
+
+    async def generate_json(self, system_prompt: str, user_prompt: str, model: str | None = None, temperature: float = 0.3) -> dict:
+        result = await self.generate(system_prompt=system_prompt, user_prompt=user_prompt, model=model, temperature=temperature)
+        if result.get("error") or not result.get("content"):
+            return {"data": None, "model": result["model"], "tokens": 0, "cost": 0.0, "latency": 0, "error": result.get("error")}
+        try:
+            data = json.loads(result["content"])
+        except json.JSONDecodeError:
+            content = result["content"]
+            if "```json" in content:
+                data = json.loads(content.split("```json")[1].split("```")[0].strip())
+            elif "```" in content:
+                data = json.loads(content.split("```")[1].split("```")[0].strip())
+            else:
+                data = {"raw": content}
+        return {"data": data, "model": result["model"], "tokens": result["total_tokens"], "cost": 0.0, "latency": result["latency_ms"], "error": None}
+
+
+ai_client = AIClient()
