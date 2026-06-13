@@ -42,10 +42,10 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Welcome back, {user?.full_name?.split(' ')[0]}</h1>
-        <p className="text-[#a1a1aa]">Here is your workforce overview for today</p>
+        <h1 className="text-2xl font-bold text-foreground">Welcome back, {user?.full_name?.split(' ')[0]}</h1>
+        <p className="text-muted-foreground">Here is your workforce overview for today</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -56,17 +56,17 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-[#0f0f17] border border-[#1e1e2e] rounded-xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-            <h2 className="font-semibold text-white">Attendance Feed</h2>
-            <span className="text-xs bg-[#1a1a2e] px-2 py-1 rounded-full text-[#a1a1aa]">
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+            <h2 className="font-semibold text-foreground">Attendance Feed</h2>
+            <span className="text-xs bg-muted px-2 py-1 rounded-full text-muted-foreground">
               {feed?.length ?? 0} employees
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-xs text-[#a1a1aa] border-b border-[#1e1e2e]">
+                <tr className="text-left text-xs text-muted-foreground border-b border-border">
                   <th className="px-6 py-3">Employee</th>
                   <th className="px-6 py-3">Check In</th>
                   <th className="px-6 py-3">Check Out</th>
@@ -76,7 +76,7 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {feed?.map((item) => (
-                  <tr key={item.employee_id} className="border-b border-[#1e1e2e] hover:bg-[#1a1a2e] transition-colors">
+                  <tr key={item.employee_id} className="border-b border-border hover:bg-muted transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
@@ -85,13 +85,13 @@ export default function DashboardPage() {
                           {item.name[0]}
                         </div>
                         <div>
-                          <p className="font-medium text-sm text-white">{item.name}</p>
-                          <p className="text-xs text-[#a1a1aa]">{item.employee_id}</p>
+                          <p className="font-medium text-sm text-foreground">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">{item.employee_id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#a1a1aa]">{item.check_in || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-[#a1a1aa]">{item.check_out || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">{item.check_in || '-'}</td>
+                    <td className="px-6 py-4 text-sm text-muted-foreground">{item.check_out || '-'}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
                         item.status === 'Present' ? 'bg-green-500/20 text-green-500' :
@@ -115,7 +115,7 @@ export default function DashboardPage() {
                           STRIKE {item.strikes}
                         </span>
                       ) : (
-                        <span className="text-xs text-[#a1a1aa]">None</span>
+                        <span className="text-xs text-muted-foreground">None</span>
                       )}
                     </td>
                   </tr>
@@ -126,8 +126,8 @@ export default function DashboardPage() {
         </div>
 
         <div className="space-y-4">
-          <div className="bg-[#0f0f17] border border-[#1e1e2e] rounded-xl p-5">
-            <h3 className="font-semibold text-white mb-4">Strike Distribution</h3>
+          <div className="bg-card border border-border rounded-xl p-5">
+            <h3 className="font-semibold text-foreground mb-4">Strike Distribution</h3>
             <div className="space-y-3">
               <StrikeBar label="Strike 1 (Friendly)" count={stats?.strike_1_count ?? 0} total={stats?.total_employees ?? 1} />
               <StrikeBar label="Strike 2 (Formal)" count={stats?.strike_2_count ?? 0} total={stats?.total_employees ?? 1} />
@@ -135,9 +135,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-[#0f0f17] border border-[#1e1e2e] rounded-xl p-5">
-            <h3 className="font-semibold text-white mb-3">AI Insights</h3>
-            <div className="space-y-2 text-sm text-[#a1a1aa]">
+          <div className="bg-card border border-border rounded-xl p-5">
+            <h3 className="font-semibold text-foreground mb-3">AI Insights</h3>
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>{stats?.late_today ?? 0} employees arrived late today</p>
               <p>{stats?.total_warnings ?? 0} warnings issued this month</p>
               <p>Attendance rate: <span className="text-green-500 font-medium">{stats ? Math.round((stats.present_today / stats.total_employees) * 100) : 0}%</span></p>
@@ -151,9 +151,9 @@ export default function DashboardPage() {
 
 function StatCard({ title, value }: { title: string; value: number }) {
   return (
-    <div className="bg-[#0f0f17] border border-[#1e1e2e] rounded-xl p-4">
-      <p className="text-sm text-[#a1a1aa]">{title}</p>
-      <p className="text-3xl font-bold text-white mt-1">{value}</p>
+    <div className="bg-card border border-border rounded-xl p-4">
+      <p className="text-sm text-muted-foreground">{title}</p>
+      <p className="text-3xl font-bold text-foreground mt-1">{value}</p>
     </div>
   );
 }
@@ -163,11 +163,11 @@ function StrikeBar({ label, count, total }: { label: string; count: number; tota
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-[#a1a1aa]">{label}</span>
-        <span className="text-white font-medium">{count}</span>
+        <span className="text-muted-foreground">{label}</span>
+        <span className="text-foreground font-medium">{count}</span>
       </div>
-      <div className="w-full bg-[#1a1a2e] rounded-full h-2">
-        <div className="bg-[#6366f1] h-2 rounded-full transition-all" style={{ width: `${pct}%` }}></div>
+      <div className="w-full bg-muted rounded-full h-2">
+        <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${pct}%` }}></div>
       </div>
     </div>
   );

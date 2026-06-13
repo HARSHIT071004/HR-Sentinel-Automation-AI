@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, text
 from app.core.ai_client import ai_client
 from app.core.vector_store import vector_store
 from app.models.chat import ChatConversation, ChatMessage
 from app.models.ai import AIUsageLog
-from app.models.attendance import MonthlySummary
+from app.models.attendance import MonthlySummary, DailyRecord
 from app.utils.injection_protection import injection_protection
 
 
@@ -21,94 +21,98 @@ RULES:
 6. For policy queries, cite the specific policy section"""
 
 
-def keyword_search(query: str, top_k: int = 5) -> list[dict]:
-    """Simple keyword-based search using FAISS metadata."""
+async def vector_search(collection: str, query: str, top_k: int = 5) -> list[dict]:
+    """Vector search against a FAISS collection."""
     try:
-        store = vector_store.get_store("policies")
+        store = vector_store.get_store(collection)
         if store.count() == 0:
             return []
-
-        # Simple keyword matching on metadata text
-        query_lower = query.lower()
-        results = []
-        for meta in store.metadata:
-            text = meta.get("text", "").lower()
-            # Calculate relevance score based on keyword overlap
-            query_words = set(query_lower.split())
-            text_words = set(text.split())
-            overlap = len(query_words.intersection(text_words))
-            if overlap > 0:
-                results.append({**meta, "score": overlap / len(query_words)})
-
-        results.sort(key=lambda x: x.get("score", 0), reverse=True)
-        return results[:top_k]
-    except Exception as e:
-        logger.warning(f"Keyword search failed: {e}")
+        query_embedding = await ai_client.embed(query)
+        return store.search(query_embedding, top_k=top_k)
+    except Exception:
         return []
+
+
+async def query_summary_stats(db: AsyncSession) -> str:
+    """Build a plain-text summary of current attendance data."""
+
+    today = datetime.now(timezone.utc).date()
+    current_month = today.strftime("%Y-%m")
+
+    # Monthly summaries
+    result = await db.execute(
+        select(MonthlySummary).where(MonthlySummary.month_year == current_month)
+    )
+    summaries = list(result.scalars().all())
+
+    if not summaries:
+        return "No attendance data available for the current month."
+
+    total_employees = len(summaries)
+    total_late = sum(s.late_count for s in summaries)
+    employees_with_warnings = [s for s in summaries if s.warning_level > 0]
+
+    lines = [
+        f"Current Month ({current_month}) Attendance Summary:",
+        f"- Total employees with records: {total_employees}",
+        f"- Total late arrivals: {total_late}",
+        f"- Employees with active warnings: {len(employees_with_warnings)}",
+    ]
+
+    for s in summaries:
+        lines.append(
+            f"  {s.name} ({s.employee_id}): {s.late_count} late arrivals, "
+            f"warning level {s.warning_level}, last late: {s.last_late_date or 'N/A'}"
+        )
+
+    return "\n".join(lines)
+
+
+async def query_today_stats(db: AsyncSession) -> str:
+    """Build a summary of today's attendance."""
+    today = datetime.now(timezone.utc).date()
+
+    result = await db.execute(
+        select(DailyRecord).where(DailyRecord.date == today)
+    )
+    records = list(result.scalars().all())
+
+    if not records:
+        return "No attendance records for today."
+
+    total = len(records)
+    late = sum(1 for r in records if r.late_flag)
+    missing = sum(1 for r in records if r.missing_punch)
+    present = total - late - missing
+
+    lines = [
+        f"Today ({today.isoformat()}) Attendance:",
+        f"- Total employees: {total}",
+        f"- Present: {present}",
+        f"- Late: {late}",
+        f"- Missing punches: {missing}",
+        "",
+        "Individual records:",
+    ]
+
+    for r in records[:50]:  # cap at 50 to avoid huge context
+        lines.append(
+            f"  {r.name} ({r.employee_id}): "
+            f"check-in {r.check_in}, check-out {r.check_out}, "
+            f"{'LATE' if r.late_flag else ''}{' MISSING PUNCH' if r.missing_punch else ''}"
+        )
+
+    return "\n".join(lines)
 
 
 class RAGCopilot:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def classify_intent(self, message: str) -> dict:
-        system = """Classify the intent of this HR question. Return ONLY a JSON object.
-
-INTENTS:
-- "policy": About company rules, leave policy, attendance policy, HR procedures
-- "data": About specific employees, numbers, statistics, attendance records
-- "analysis": Requests analysis, trends, comparisons, risk assessments
-- "action": Wants to perform an action (generate report, send email)
-- "general": General HR question not fitting above categories
-
-Return: {"intent": "<intent>", "confidence": <0.0-1.0>}"""
-
-        result = await ai_client.generate_json(
-            system_prompt=system,
-            user_prompt=f"Classify this question: {message}",
-            temperature=0.1,
-        )
-
-        if result.get("data"):
-            return result["data"]
-
-        message_lower = message.lower()
-        if any(w in message_lower for w in ["policy", "rule", "procedure", "leave"]):
-            return {"intent": "policy", "confidence": 0.7}
-        elif any(w in message_lower for w in ["who", "how many", "employee", "late", "strike"]):
-            return {"intent": "data", "confidence": 0.7}
-        elif any(w in message_lower for w in ["trend", "analyze", "compare", "risk"]):
-            return {"intent": "analysis", "confidence": 0.7}
-        elif any(w in message_lower for w in ["generate", "report", "send"]):
-            return {"intent": "action", "confidence": 0.7}
-        else:
-            return {"intent": "general", "confidence": 0.5}
-
-    async def query_database(self, intent: dict, message: str) -> str:
-        intent_type = intent.get("intent", "general")
-
-        if intent_type in ("data", "analysis"):
-            current_month = datetime.now().strftime("%Y-%m")
-            result = await self.db.execute(
-                select(MonthlySummary).where(MonthlySummary.month_year == current_month)
-            )
-            summaries = list(result.scalars().all())
-
-            if not summaries:
-                return "No attendance data available for the current month."
-
-            context_parts = []
-            for s in summaries:
-                context_parts.append(f"- {s.name} ({s.employee_id}): {s.late_count} late arrivals, warning level {s.warning_level}")
-
-            return "Current month attendance violations:\n" + "\n".join(context_parts)
-
-        return ""
-
     async def process_query(self, user_id: str, message: str, conversation_id: str | None = None) -> dict:
-        sanitized_message = injection_protection.sanitize_input(message)
+        sanitized_message = message.strip()
 
-        injection_check = injection_protection.detect_injection(message)
+        injection_check = injection_protection.detect_injection(sanitized_message)
         if injection_check["detected"]:
             return {
                 "conversation_id": conversation_id or str(uuid.uuid4()),
@@ -116,34 +120,45 @@ Return: {"intent": "<intent>", "confidence": <0.0-1.0>}"""
                 "sources": [],
             }
 
-        intent = await self.classify_intent(sanitized_message)
-
-        context = ""
+        # Gather context from multiple sources
+        context_parts = []
         sources = []
 
-        if intent["intent"] in ("data", "analysis"):
-            db_context = await self.query_database(intent, sanitized_message)
-            if db_context:
-                context = db_context
+        today_stats = await query_today_stats(self.db)
+        if "No attendance records" not in today_stats:
+            context_parts.append(today_stats)
 
-        # Search FAISS for relevant documents using keyword matching
-        faiss_results = keyword_search(sanitized_message, top_k=3)
-        for r in faiss_results:
-            context += f"\n\n{r.get('text', '')}"
-            sources.append({
-                "title": r.get("title", "Document"),
-                "content": r.get("text", "")[:200],
-                "score": r.get("score", 0),
-            })
+        month_stats = await query_summary_stats(self.db)
+        if "No attendance data" not in month_stats:
+            context_parts.append(month_stats)
+
+        # Vector search on FAISS collections
+        for collection in ("attendance", "policies"):
+            try:
+                results = await vector_search(collection, sanitized_message, top_k=5)
+                for r in results:
+                    text = r.get("text", "")
+                    if text:
+                        context_parts.append(text)
+                    sources.append({
+                        "title": r.get("title", r.get("doc_type", collection)),
+                        "snippet": (text or "")[:200],
+                        "source": collection,
+                    })
+            except Exception:
+                continue
+
+        context = "\n\n".join(context_parts) if context_parts else "No relevant context found."
 
         user_prompt = f"""Based on the following context, answer the user's question.
 
 CONTEXT:
-{context if context else "No relevant context found."}
+{context}
 
 RULES:
 - Answer based only on the provided context
 - If context is insufficient, say "I don't have enough information to answer that question"
+- Give specific names, numbers, and dates when available
 - Be helpful and professional
 
 QUESTION: {sanitized_message}
@@ -172,9 +187,7 @@ ANSWER:"""
 
         response_text = result.get("content", "I'm sorry, I couldn't process your request. Please try again.")
 
-        if sources:
-            response_text += "\n\nSources:\n" + "\n".join([f"[{i+1}] {s['title']}" for i, s in enumerate(sources)])
-
+        # Find or create conversation
         if conversation_id:
             conv_result = await self.db.execute(
                 select(ChatConversation).where(ChatConversation.id == uuid.UUID(conversation_id))

@@ -5,6 +5,7 @@ from datetime import datetime, time, date, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.attendance_repo import AttendanceRepository
 from app.core.exceptions import ConflictError, BadRequestError
+from app.services.attendance_ingestion import ingest_attendance_records, delete_attendance_embeddings
 
 
 LATE_THRESHOLD_HOUR = 11
@@ -201,6 +202,8 @@ class AttendanceService:
 
         await self._process_escalations(records)
 
+        await ingest_attendance_records(records, upload_id=upload_log.id)
+
         return {
             "upload_id": str(upload_log.id),
             "file_name": filename,
@@ -223,6 +226,8 @@ class AttendanceService:
 
         await self.attendance_repo.delete_employee_ai_data(employee_ids)
         orphans = await self.attendance_repo.delete_employees_without_records(employee_ids)
+
+        await delete_attendance_embeddings(file_id)
 
         await self.attendance_repo.delete_upload_log(upload_log)
         return True

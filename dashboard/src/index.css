@@ -3,15 +3,105 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    border-color: #1e1e2e;
+  :root {
+    --background: #f8f9fc;
+    --foreground: #1a1a2e;
+
+    --card: #ffffff;
+    --card-foreground: #1a1a2e;
+
+    --popover: #ffffff;
+    --popover-foreground: #1a1a2e;
+
+    --primary: #6366f1;
+    --primary-foreground: #ffffff;
+
+    --secondary: #f1f0fb;
+    --secondary-foreground: #1a1a2e;
+
+    --muted: #f1f5f9;
+    --muted-foreground: #6b7280;
+
+    --accent: #f1f0fb;
+    --accent-foreground: #1a1a2e;
+
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+
+    --warning: #f59e0b;
+    --warning-foreground: #ffffff;
+
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #6366f1;
+
+    --sidebar: #ffffff;
+    --sidebar-foreground: #475569;
+    --sidebar-hover: #f1f5f9;
+    --sidebar-active: #eef2ff;
+    --sidebar-active-foreground: #6366f1;
+    --sidebar-border: #e2e8f0;
+
+    --radius: 0.625rem;
   }
+
+  .dark {
+    --background: #0a0a0f;
+    --foreground: #fafafa;
+
+    --card: #0f0f17;
+    --card-foreground: #fafafa;
+
+    --popover: #0f0f17;
+    --popover-foreground: #fafafa;
+
+    --primary: #6366f1;
+    --primary-foreground: #ffffff;
+
+    --secondary: #1a1a2e;
+    --secondary-foreground: #fafafa;
+
+    --muted: #1a1a2e;
+    --muted-foreground: #a1a1aa;
+
+    --accent: #1a1a2e;
+    --accent-foreground: #fafafa;
+
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+
+    --warning: #f59e0b;
+    --warning-foreground: #ffffff;
+
+    --border: #1e1e2e;
+    --input: #1e1e2e;
+    --ring: #6366f1;
+
+    --sidebar: #0f0f17;
+    --sidebar-foreground: #a1a1aa;
+    --sidebar-hover: #1a1a2e;
+    --sidebar-active: #1a1a2e;
+    --sidebar-active-foreground: #a78bfa;
+    --sidebar-border: #1e1e2e;
+
+    --radius: 0.625rem;
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    background-color: #0a0a0f;
-    color: #fafafa;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
@@ -21,14 +111,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0f;
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e1e2e;
+  background: var(--muted);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2e2e3e;
+  background: var(--muted-foreground);
 }

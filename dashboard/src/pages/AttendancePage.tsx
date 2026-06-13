@@ -66,53 +66,53 @@ export default function AttendancePage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Attendance Upload</h1>
-          <p className="text-[#a1a1aa]">Upload Excel files to process attendance data</p>
+          <h1 className="text-2xl font-bold text-foreground">Attendance Upload</h1>
+          <p className="text-muted-foreground">Upload Excel files to process attendance data</p>
         </div>
         <button
           onClick={() => navigate('/ai')}
-          className="px-4 py-2 bg-[#6366f1] text-white rounded-lg text-sm font-medium hover:bg-[#5558e6] transition-colors"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           AI Insights
         </button>
       </div>
 
-      <div className="bg-[#0f0f17] border border-[#1e1e2e] rounded-xl p-6">
-        <h2 className="font-semibold text-white mb-4">Upload Attendance File</h2>
-        <div className="border-2 border-dashed border-[#1e1e2e] rounded-xl p-8 text-center hover:border-[#6366f1] transition-colors">
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h2 className="font-semibold text-foreground mb-4">Upload Attendance File</h2>
+        <div className="border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary transition-colors">
           <input type="file" accept=".xlsx,.xls,.csv" onChange={handleUpload} className="hidden" id="file-upload" />
           <label htmlFor="file-upload" className="cursor-pointer">
-            <div className="text-4xl mb-2 text-[#a1a1aa]">+</div>
-            <p className="text-[#a1a1aa]">Click to upload .xlsx file</p>
-            <p className="text-xs text-[#a1a1aa]/60 mt-1">Max 10MB</p>
+            <div className="text-4xl mb-2 text-muted-foreground">+</div>
+            <p className="text-muted-foreground">Click to upload .xlsx file</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Max 10MB</p>
           </label>
         </div>
         {uploadMutation.isPending && (
-          <div className="mt-4 flex items-center gap-2 text-[#6366f1]">
-            <div className="w-4 h-4 border-2 border-[#6366f1] border-t-transparent rounded-full animate-spin"></div>
+          <div className="mt-4 flex items-center gap-2 text-primary">
+            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
             Processing...
           </div>
         )}
-        {error && <p className="mt-4 text-[#ef4444] text-sm">{error}</p>}
+        {error && <p className="mt-4 text-destructive text-sm">{error}</p>}
         {uploadResult && (
           <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
             <p className="text-green-500 font-medium">Upload Complete</p>
             <div className="mt-2 grid grid-cols-3 gap-4 text-sm">
-              <div><span className="text-[#a1a1aa]">Records:</span> <span className="text-white font-medium">{uploadResult.records_created}</span></div>
-              <div><span className="text-[#a1a1aa]">Warnings:</span> <span className="text-white font-medium">{uploadResult.warnings_detected}</span></div>
-              <div><span className="text-[#a1a1aa]">Status:</span> <span className="text-green-500 font-medium">{uploadResult.status}</span></div>
+              <div><span className="text-muted-foreground">Records:</span> <span className="text-foreground font-medium">{uploadResult.records_created}</span></div>
+              <div><span className="text-muted-foreground">Warnings:</span> <span className="text-foreground font-medium">{uploadResult.warnings_detected}</span></div>
+              <div><span className="text-muted-foreground">Status:</span> <span className="text-green-500 font-medium">{uploadResult.status}</span></div>
             </div>
             <div className="mt-3 flex gap-2">
-              <button onClick={() => navigate('/')} className="px-3 py-1.5 bg-[#6366f1] text-white rounded-lg text-xs font-medium hover:bg-[#5558e6]">
+              <button onClick={() => navigate('/')} className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-medium hover:bg-primary/90">
                 View Dashboard
               </button>
-              <button onClick={() => navigate('/employees')} className="px-3 py-1.5 bg-[#1a1a2e] text-[#a1a1aa] rounded-lg text-xs font-medium hover:bg-[#252540]">
+              <button onClick={() => navigate('/employees')} className="px-3 py-1.5 bg-secondary text-secondary-foreground rounded-lg text-xs font-medium hover:bg-secondary/80">
                 View Employees
               </button>
-              <button onClick={() => navigate('/ai')} className="px-3 py-1.5 bg-[#8b5cf6]/20 text-[#a78bfa] rounded-lg text-xs font-medium hover:bg-[#8b5cf6]/30">
+              <button onClick={() => navigate('/ai')} className="px-3 py-1.5 bg-primary/20 text-primary rounded-lg text-xs font-medium hover:bg-primary/30">
                 AI Insights
               </button>
             </div>
@@ -120,14 +120,14 @@ export default function AttendancePage() {
         )}
       </div>
 
-      <div className="bg-[#0f0f17] border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-          <h2 className="font-semibold text-white">Upload History</h2>
-          <span className="text-xs text-[#a1a1aa]">{files?.length || 0} files</span>
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+          <h2 className="font-semibold text-foreground">Upload History</h2>
+          <span className="text-xs text-muted-foreground">{files?.length || 0} files</span>
         </div>
         <table className="w-full">
           <thead>
-            <tr className="text-left text-xs text-[#a1a1aa] border-b border-[#1e1e2e]">
+            <tr className="text-left text-xs text-muted-foreground border-b border-border">
               <th className="px-6 py-3">File</th>
               <th className="px-6 py-3">Status</th>
               <th className="px-6 py-3">Rows</th>
@@ -138,16 +138,16 @@ export default function AttendancePage() {
           </thead>
           <tbody>
             {files?.map((file) => (
-              <tr key={file.id} className="border-b border-[#1e1e2e] hover:bg-[#1a1a2e]">
-                <td className="px-6 py-4 text-sm font-medium text-white">{file.file_name}</td>
+              <tr key={file.id} className="border-b border-border hover:bg-muted">
+                <td className="px-6 py-4 text-sm font-medium text-foreground">{file.file_name}</td>
                 <td className="px-6 py-4">
                   <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
                     file.status === 'completed' ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'
                   }`}>{file.status}</span>
                 </td>
-                <td className="px-6 py-4 text-sm text-[#a1a1aa]">{file.row_count}</td>
-                <td className="px-6 py-4 text-sm text-[#a1a1aa]">{file.records_created}</td>
-                <td className="px-6 py-4 text-sm text-[#a1a1aa]">{new Date(file.uploaded_at).toLocaleString()}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground">{file.row_count}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground">{file.records_created}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground">{new Date(file.uploaded_at).toLocaleString()}</td>
                 <td className="px-6 py-4">
                   <button
                     onClick={() => {
@@ -163,7 +163,7 @@ export default function AttendancePage() {
               </tr>
             ))}
             {(!files || files.length === 0) && (
-              <tr><td colSpan={6} className="px-6 py-8 text-center text-[#a1a1aa]">No uploads yet</td></tr>
+              <tr><td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">No uploads yet</td></tr>
             )}
           </tbody>
         </table>
