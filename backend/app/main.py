@@ -19,10 +19,12 @@ from app.models.chat import ChatConversation, ChatMessage
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
-    # Create all tables on startup
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    print("Database tables ensured")
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("Database tables ensured")
+    except Exception as e:
+        print(f"Database init failed (app will run in degraded mode): {e}")
     yield
     print(f"Shutting down {settings.APP_NAME}")
 

@@ -1,9 +1,9 @@
 {
-  "buildCommand": "cd dashboard && npm install && npm run build",
+  "buildCommand": "cd dashboard && npm run build",
   "outputDirectory": "dashboard/dist",
-  "installCommand": "pip install -r requirements.txt",
+  "installCommand": "pip install -r requirements.txt && cd dashboard && npm install",
   "functions": {
-    "api/index.py": {
+    "api/**/*.py": {
       "maxDuration": 30
     }
   },
