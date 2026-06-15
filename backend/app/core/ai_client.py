@@ -2,7 +2,7 @@ import time
 import json
 import hashlib
 import logging
-import numpy as np
+import importlib
 from openai import AsyncOpenAI
 from app.config import settings
 
@@ -13,10 +13,18 @@ def _hash_embedding(text: str, dim: int = 1536) -> list[float]:
     """Deterministic fallback embedding using MD5 hashing."""
     raw = hashlib.md5(text.encode("utf-8")).digest()
     seed = int.from_bytes(raw[:4], "little")
-    rng = np.random.default_rng(seed)
-    vec = rng.normal(0, 0.1, dim).astype(np.float32)
-    norm = np.linalg.norm(vec)
-    return (vec / norm).tolist() if norm > 0 else [0.0] * dim
+    try:
+        np = importlib.import_module("numpy")
+        rng = np.random.default_rng(seed)
+        vec = rng.normal(0, 0.1, dim).astype(np.float32)
+        norm = np.linalg.norm(vec)
+        return (vec / norm).tolist() if norm > 0 else [0.0] * dim
+    except ModuleNotFoundError:
+        import random
+        rng = random.Random(seed)
+        vec = [rng.gauss(0, 0.1) for _ in range(dim)]
+        mag = sum(v * v for v in vec) ** 0.5
+        return [v / mag for v in vec] if mag > 0 else [0.0] * dim
 
 
 class AIClient:

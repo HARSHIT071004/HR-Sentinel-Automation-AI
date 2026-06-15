@@ -1,11 +1,19 @@
 import os
 import json
 import copy
-import numpy as np
-import faiss
 import logging
 
 logger = logging.getLogger(__name__)
+
+try:
+    import numpy as np
+    import faiss
+    HAS_VECTOR_STORE = True
+except ModuleNotFoundError:
+    np = None
+    faiss = None
+    HAS_VECTOR_STORE = False
+    logger.warning("numpy/faiss not available — vector store disabled")
 
 FAISS_DIR = "./faiss_data"
 os.makedirs(FAISS_DIR, exist_ok=True)
@@ -16,13 +24,16 @@ class FAISSVectorStore:
         self.collection_name = collection_name
         self.index_path = os.path.join(FAISS_DIR, f"{collection_name}.index")
         self.meta_path = os.path.join(FAISS_DIR, f"{collection_name}_meta.json")
-        self.dimension = 1536  # OpenAI text-embedding-3-small
+        self.dimension = 1536
         self.index = None
         self.metadata = []
-        self._vectors = []  # keep original vectors for rebuild
-        self._load()
+        self._vectors = []
+        if HAS_VECTOR_STORE:
+            self._load()
 
     def _load(self):
+        if not HAS_VECTOR_STORE:
+            return
         if os.path.exists(self.index_path) and os.path.exists(self.meta_path):
             self.index = faiss.read_index(self.index_path)
             with open(self.meta_path, "r", encoding="utf-8") as f:
@@ -39,12 +50,17 @@ class FAISSVectorStore:
             self._vectors = []
 
     def _save(self):
+        if not HAS_VECTOR_STORE:
+            return
         faiss.write_index(self.index, self.index_path)
         data = {"metadata": self.metadata, "vectors": self._vectors}
         with open(self.meta_path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, cls=_NumpyEncoder)
 
     def add(self, embeddings: list[list[float]], metadatas: list[dict], texts: list[str]):
+        if not HAS_VECTOR_STORE:
+            logger.warning("vector store disabled — skipping add")
+            return
         vectors = np.array(embeddings, dtype=np.float32)
         faiss.normalize_L2(vectors)
         self.index.add(vectors)
@@ -55,7 +71,7 @@ class FAISSVectorStore:
         self._save()
 
     def search(self, query_embedding: list[float], top_k: int = 5) -> list[dict]:
-        if self.index.ntotal == 0:
+        if not HAS_VECTOR_STORE or self.index.ntotal == 0:
             return []
         query = np.array([query_embedding], dtype=np.float32)
         faiss.normalize_L2(query)
@@ -69,7 +85,8 @@ class FAISSVectorStore:
         return results
 
     def delete_by_filter(self, key: str, value: str) -> int:
-        """Delete all entries where metadata[key] == value. Returns count removed."""
+        if not HAS_VECTOR_STORE:
+            return 0
         before = len(self.metadata)
         keep_indices = [i for i, m in enumerate(self.metadata) if m.get(key) != value]
         if len(keep_indices) == before:
@@ -85,14 +102,16 @@ class FAISSVectorStore:
         return before - len(self.metadata)
 
     def count(self) -> int:
+        if not HAS_VECTOR_STORE:
+            return 0
         return self.index.ntotal
 
 
 class _NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, np.ndarray):
+        if np is not None and isinstance(obj, np.ndarray):
             return obj.tolist()
-        if isinstance(obj, np.float32):
+        if np is not None and isinstance(obj, np.float32):
             return float(obj)
         return super().default(obj)
 
@@ -119,6 +138,8 @@ class VectorStoreManager:
         return store.delete_by_filter(key, value)
 
     def list_collections(self) -> list[str]:
+        if not HAS_VECTOR_STORE:
+            return []
         return [f.replace(".index", "") for f in os.listdir(FAISS_DIR) if f.endswith(".index")]
 
 
