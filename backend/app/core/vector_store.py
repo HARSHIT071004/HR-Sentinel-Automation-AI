@@ -16,7 +16,8 @@ except ModuleNotFoundError:
     logger.warning("numpy/faiss not available — vector store disabled")
 
 FAISS_DIR = "./faiss_data"
-os.makedirs(FAISS_DIR, exist_ok=True)
+if HAS_VECTOR_STORE:
+    os.makedirs(FAISS_DIR, exist_ok=True)
 
 
 class FAISSVectorStore:
