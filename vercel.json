@@ -1,18 +1,11 @@
 {
-  "buildCommand": "cd dashboard && npm install && npm run build -- --base=/",
+  "version": 2,
+  "buildCommand": "cd dashboard && npm install && npm run build",
   "outputDirectory": "dashboard/dist",
-  "installCommand": "",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
-  "functions": {
-    "api/index.py": {
-      "runtime": "@vercel/python",
-      "memory": 512,
-      "maxDuration": 30
-    }
-  },
   "env": {
     "APP_NAME": "HR Sentinel AI",
     "APP_VERSION": "1.0.0",
