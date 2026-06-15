@@ -1,7 +1,13 @@
 {
-  "buildCommand": "cd dashboard && npm run build",
+  "version": 2,
+  "framework": null,
+  "buildCommand": "cd dashboard && npm install && npm run build",
   "outputDirectory": "dashboard/dist",
-  "installCommand": "pip install -r requirements.txt && cd dashboard && npm install",
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
