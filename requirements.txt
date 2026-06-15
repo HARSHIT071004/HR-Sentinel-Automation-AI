@@ -1,7 +1,7 @@
 # HR Sentinel AI — Backend Dependencies
 fastapi>=0.115.0
 sqlalchemy[asyncio]>=2.0.0
-pydantic[email]>=2.0.0
+pydantic[email]>=2.9.0
 pydantic-settings>=2.5.0
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
@@ -17,3 +17,6 @@ bcrypt>=4.0.0
 # Vector search (RAG) — native lib, may not work on all architectures
 # faiss-cpu>=1.8.0
 # numpy>=1.24.0
+
+# Local dev / fallback (used when DATABASE_URL not set)
+aiosqlite>=0.20.0
