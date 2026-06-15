@@ -1,14 +1,10 @@
 {
   "version": 2,
+  "framework": null,
   "buildCommand": "cd dashboard && npm install && npm run build",
   "outputDirectory": "dashboard/dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ],
-  "env": {
-    "APP_NAME": "HR Sentinel AI",
-    "APP_VERSION": "1.0.0",
-    "CORS_ORIGINS": "[\"https://your-app.vercel.app\"]"
-  }
+  ]
 }
