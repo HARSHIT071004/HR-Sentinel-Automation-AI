@@ -4,6 +4,7 @@ from app.database import get_db
 from app.schemas.auth import UserCreate, UserResponse, LoginRequest, TokenResponse, RefreshRequest, MessageResponse
 from app.services.auth_service import AuthService
 from app.core.deps import get_current_user, require_role
+from app.core.exceptions import AppException
 from app.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -26,6 +27,8 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)):
         service = AuthService(db)
         result = await service.login(email=data.email, password=data.password)
         return result
+    except AppException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

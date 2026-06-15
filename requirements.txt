@@ -14,10 +14,6 @@ alembic>=1.14.0
 aiofiles>=24.0.0
 bcrypt>=4.0.0
 
-# Vector search (RAG) — large, remove if not needed
-faiss-cpu>=1.8.0
-numpy>=1.24.0
-
-# Local dev only (not used on Vercel)
-aiosqlite>=0.20.0
-uvicorn[standard]>=0.32.0
+# Vector search (RAG) — native lib, may not work on all architectures
+# faiss-cpu>=1.8.0
+# numpy>=1.24.0

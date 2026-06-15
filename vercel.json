@@ -1,12 +1,8 @@
 {
+  "framework": "fastapi",
   "buildCommand": "cd dashboard && npm run build",
   "outputDirectory": "dashboard/dist",
   "installCommand": "pip install -r requirements.txt && cd dashboard && npm install",
-  "functions": {
-    "api/**/*.py": {
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
