@@ -45,7 +45,10 @@ class Settings(BaseSettings):
     @classmethod
     def parse_cors_origins(cls, v):
         if isinstance(v, str):
-            return json.loads(v)
+            try:
+                return json.loads(v)
+            except json.JSONDecodeError:
+                return [v.strip()]
         return v
 
 
