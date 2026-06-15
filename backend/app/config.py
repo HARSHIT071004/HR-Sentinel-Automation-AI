@@ -1,3 +1,5 @@
+import json
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -38,6 +40,13 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            return json.loads(v)
+        return v
 
 
 settings = Settings()
