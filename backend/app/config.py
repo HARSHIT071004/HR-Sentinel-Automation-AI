@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     MAX_FILE_SIZE_MB: int = 10
 
     # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    CORS_ORIGINS: str = '["http://localhost:5173", "http://localhost:3000"]'
 
     # Rate Limiting
     RATE_LIMIT_DEFAULT: int = 100
@@ -45,11 +45,24 @@ class Settings(BaseSettings):
     @classmethod
     def parse_cors_origins(cls, v):
         if isinstance(v, str):
+            v = v.strip()
+            if not v:
+                return '["http://localhost:5173"]'
             try:
-                return json.loads(v)
+                json.loads(v)
+                return v
             except json.JSONDecodeError:
-                return [v.strip()]
+                return json.dumps([v])
+        if isinstance(v, list):
+            return json.dumps(v)
         return v
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        try:
+            return json.loads(self.CORS_ORIGINS)
+        except (json.JSONDecodeError, TypeError):
+            return ["http://localhost:5173"]
 
 
 settings = Settings()
