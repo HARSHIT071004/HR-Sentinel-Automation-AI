@@ -1,6 +1,9 @@
+# Docker files
 backend/Dockerfile
 dashboard/Dockerfile
 docker-compose.yml
+
+# Local dev scripts
 backend/.env
 backend/seed.py
 backend/check_db.py
@@ -10,4 +13,6 @@ backend/ingest_documents.py
 backend/init_chroma.py
 backend/test_login.py
 backend/alembic/
+
+# Nginx (not needed on Vercel)
 dashboard/nginx.conf
