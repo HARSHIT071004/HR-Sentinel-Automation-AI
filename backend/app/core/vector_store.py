@@ -7,13 +7,15 @@ logger = logging.getLogger(__name__)
 
 try:
     import numpy as np
-    import faiss
-    HAS_VECTOR_STORE = True
 except ModuleNotFoundError:
     np = None
+
+try:
+    import faiss
+except ModuleNotFoundError:
     faiss = None
-    HAS_VECTOR_STORE = False
-    logger.warning("numpy/faiss not available — vector store disabled")
+
+HAS_VECTOR_STORE = np is not None and faiss is not None
 
 FAISS_DIR = "./faiss_data"
 if HAS_VECTOR_STORE:

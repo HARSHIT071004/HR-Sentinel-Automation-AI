@@ -14,9 +14,9 @@ alembic>=1.14.0
 aiofiles>=24.0.0
 bcrypt>=4.0.0
 
-# Vector search (RAG) — native lib, may not work on all architectures
-# faiss-cpu>=1.8.0
-# numpy>=1.24.0
+# Vector search (RAG)
+numpy>=1.24.0
+# faiss-cpu>=1.8.0  # excluded — native lib incompatible with Lambda
 
 # Local dev / fallback (used when DATABASE_URL not set)
 aiosqlite>=0.20.0
