@@ -14,20 +14,20 @@ class AttendanceRepository:
         return await self.db.get(DailyRecord, record_id)
 
     async def upsert_daily_record(self, record: dict) -> DailyRecord:
-        existing = await self.db.execute(
-            select(DailyRecord).where(
-                and_(
-                    DailyRecord.employee_id == record["employee_id"],
-                    DailyRecord.date == record["date"],
-                )
-            )
-        )
-        existing_record = existing.scalar_one_or_none()
-
         data = dict(record)
         data.pop("month_year", None)
         if isinstance(data.get("date"), str):
             data["date"] = datetime.strptime(data["date"], "%Y-%m-%d").date()
+
+        existing = await self.db.execute(
+            select(DailyRecord).where(
+                and_(
+                    DailyRecord.employee_id == data["employee_id"],
+                    DailyRecord.date == data["date"],
+                )
+            )
+        )
+        existing_record = existing.scalar_one_or_none()
         for key in ("check_in", "check_out"):
             val = data.get(key)
             if isinstance(val, str) and val:
