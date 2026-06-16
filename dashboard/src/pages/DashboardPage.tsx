@@ -42,9 +42,9 @@ export default function DashboardPage() {
   });
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Welcome back, {user?.full_name?.split(' ')[0]}</h1>
+        <h1 className="text-lg sm:text-2xl font-bold text-foreground">Welcome back, {user?.full_name?.split(' ')[0]}</h1>
         <p className="text-muted-foreground">Here is your workforce overview for today</p>
       </div>
 
@@ -64,35 +64,35 @@ export default function DashboardPage() {
             </span>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[500px]">
               <thead>
                 <tr className="text-left text-xs text-muted-foreground border-b border-border">
-                  <th className="px-6 py-3">Employee</th>
-                  <th className="px-6 py-3">Check In</th>
-                  <th className="px-6 py-3">Check Out</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Strikes</th>
+                  <th className="px-4 sm:px-6 py-3">Employee</th>
+                  <th className="px-4 sm:px-6 py-3">Check In</th>
+                  <th className="px-4 sm:px-6 py-3">Check Out</th>
+                  <th className="px-4 sm:px-6 py-3">Status</th>
+                  <th className="px-4 sm:px-6 py-3">Strikes</th>
                 </tr>
               </thead>
               <tbody>
                 {feed?.map((item) => (
                   <tr key={item.employee_id} className="border-b border-border hover:bg-muted transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold ${
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 ${
                           item.status === 'Late' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-green-500/20 text-green-500'
                         }`}>
                           {item.name[0]}
                         </div>
-                        <div>
-                          <p className="font-medium text-sm text-foreground">{item.name}</p>
-                          <p className="text-xs text-muted-foreground">{item.employee_id}</p>
+                        <div className="min-w-0">
+                          <p className="font-medium text-xs sm:text-sm text-foreground truncate">{item.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{item.employee_id}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{item.check_in || '-'}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{item.check_out || '-'}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{item.check_in || '-'}</td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{item.check_out || '-'}</td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
                         item.status === 'Present' ? 'bg-green-500/20 text-green-500' :
                         item.status === 'Late' ? 'bg-yellow-500/20 text-yellow-500' :
@@ -151,9 +151,9 @@ export default function DashboardPage() {
 
 function StatCard({ title, value }: { title: string; value: number }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4">
-      <p className="text-sm text-muted-foreground">{title}</p>
-      <p className="text-3xl font-bold text-foreground mt-1">{value}</p>
+    <div className="bg-card border border-border rounded-xl p-3 sm:p-4">
+      <p className="text-xs sm:text-sm text-muted-foreground">{title}</p>
+      <p className="text-2xl sm:text-3xl font-bold text-foreground mt-0.5 sm:mt-1">{value}</p>
     </div>
   );
 }

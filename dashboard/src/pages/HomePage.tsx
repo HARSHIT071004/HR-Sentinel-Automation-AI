@@ -73,7 +73,7 @@ export default function HomePage() {
           <div className="absolute bottom-[-200px] left-[-200px] w-[400px] h-[400px] rounded-full bg-primary/5 blur-3xl" />
         </div>
 
-        <div className="relative max-w-4xl mx-auto pt-16 pb-12 px-6 text-center">
+        <div className="relative max-w-4xl mx-auto pt-10 sm:pt-16 pb-8 sm:pb-12 px-4 sm:px-6 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -83,21 +83,21 @@ export default function HomePage() {
               <Sparkles className="w-4 h-4" />
               Workforce Intelligence Platform
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-foreground leading-tight mb-3 sm:mb-4">
               AI-Powered
               <br />
               <span className="text-primary">Attendance Management</span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed px-2 sm:px-0">
               Upload attendance logs, get instant AI risk scores, behavior analysis,
               and real-time dashboards — all powered by LLMs and vector search.
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all inline-flex items-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all inline-flex items-center justify-center gap-2"
               >
                 Go to Dashboard
                 <ArrowRight className="w-4 h-4" />
@@ -106,7 +106,7 @@ export default function HomePage() {
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => navigate('/attendance')}
-                className="px-6 py-3 bg-card border border-border text-foreground rounded-xl font-medium hover:bg-accent transition-all inline-flex items-center gap-2"
+                className="w-full sm:w-auto px-6 py-3 bg-card border border-border text-foreground rounded-xl font-medium hover:bg-accent transition-all inline-flex items-center justify-center gap-2"
               >
                 Upload Attendance
               </motion.button>
@@ -116,7 +116,7 @@ export default function HomePage() {
       </section>
 
       {/* Quick stats */}
-      <section className="max-w-4xl mx-auto px-6 pb-12">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-10 sm:pb-12">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -142,7 +142,7 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="max-w-5xl mx-auto px-6 pb-16">
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -190,7 +190,7 @@ export default function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="max-w-4xl mx-auto px-6 pb-16">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -255,7 +255,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="max-w-3xl mx-auto px-6 pb-16">
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -273,7 +273,7 @@ export default function HomePage() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate('/attendance')}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all inline-flex items-center gap-2"
+            className="w-full sm:w-auto px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all inline-flex items-center justify-center gap-2"
           >
             Upload Your First File
             <Upload className="w-4 h-4" />

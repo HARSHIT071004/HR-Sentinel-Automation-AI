@@ -87,19 +87,19 @@ export default function AIInsightsPage() {
     : [];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">AI Insights</h1>
+        <h1 className="text-lg sm:text-2xl font-bold text-foreground">AI Insights</h1>
         <p className="text-sm text-muted-foreground mt-1">AI-powered risk scoring and behavior analysis</p>
       </div>
 
-      <div className="bg-card rounded-xl border border-border p-5">
+      <div className="bg-card rounded-xl border border-border p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-foreground mb-3">Select Employee</h2>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <select
             value={selectedEmployee}
             onChange={(e) => setSelectedEmployee(e.target.value)}
-            className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="w-full sm:flex-1 px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Choose an employee...</option>
             {employees?.map((emp) => (
@@ -108,37 +108,39 @@ export default function AIInsightsPage() {
               </option>
             ))}
           </select>
-          <button
-            onClick={analyzeRisk}
-            disabled={!selectedEmployee || loading !== null}
-            className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-sm font-medium rounded-lg transition-colors"
-          >
-            {loading === 'risk' ? 'Analyzing...' : 'Risk Score'}
-          </button>
-          <button
-            onClick={analyzeBehavior}
-            disabled={!selectedEmployee || loading !== null}
-            className="px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-sm font-medium rounded-lg transition-colors"
-          >
-            {loading === 'behavior' ? 'Analyzing...' : 'Behavior Analysis'}
-          </button>
+          <div className="flex gap-2 sm:gap-3">
+            <button
+              onClick={analyzeRisk}
+              disabled={!selectedEmployee || loading !== null}
+              className="flex-1 sm:flex-none px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-sm font-medium rounded-lg transition-colors"
+            >
+              {loading === 'risk' ? 'Analyzing...' : 'Risk Score'}
+            </button>
+            <button
+              onClick={analyzeBehavior}
+              disabled={!selectedEmployee || loading !== null}
+              className="flex-1 sm:flex-none px-4 py-2 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground text-sm font-medium rounded-lg transition-colors"
+            >
+              {loading === 'behavior' ? 'Analyzing...' : 'Behavior'}
+            </button>
+          </div>
         </div>
         {error && (
           <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">{error}</div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="px-5 py-4 border-b border-border">
+          <div className="px-4 sm:px-5 py-4 border-b border-border">
             <h2 className="text-sm font-semibold text-foreground">Risk Assessment</h2>
           </div>
           {riskResult ? (
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4">
               <div className="flex items-center gap-4">
                 <div className="text-center">
-                  <div className={cn('w-20 h-20 rounded-2xl border-2 flex items-center justify-center', getRiskColor(riskResult.level))}>
-                    <span className="text-2xl font-bold">{riskResult.score}</span>
+                  <div className={cn('w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 flex items-center justify-center', getRiskColor(riskResult.level))}>
+                    <span className="text-xl sm:text-2xl font-bold">{riskResult.score}</span>
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-1">/100</p>
                 </div>
@@ -159,7 +161,7 @@ export default function AIInsightsPage() {
                   <div className="space-y-1.5">
                     {factorEntries.map(([key, val], i) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-                        <span className="text-red-400 mt-0.5">-</span>
+                        <span className="text-red-400 mt-0.5 shrink-0">-</span>
                         <span><strong>{key}:</strong> {val}</span>
                       </div>
                     ))}
@@ -172,7 +174,7 @@ export default function AIInsightsPage() {
                   <div className="space-y-1.5">
                     {riskResult.recommendations.map((r, i) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-                        <span className="text-primary mt-0.5">-</span>
+                        <span className="text-primary mt-0.5 shrink-0">-</span>
                         {r}
                       </div>
                     ))}
@@ -181,18 +183,18 @@ export default function AIInsightsPage() {
               )}
             </div>
           ) : (
-            <div className="p-12 text-center text-muted-foreground text-sm">
+            <div className="p-8 sm:p-12 text-center text-muted-foreground text-sm">
               Select an employee and click "Risk Score" to analyze
             </div>
           )}
         </div>
 
         <div className="bg-card rounded-xl border border-border overflow-hidden">
-          <div className="px-5 py-4 border-b border-border">
+          <div className="px-4 sm:px-5 py-4 border-b border-border">
             <h2 className="text-sm font-semibold text-foreground">Behavior Analysis</h2>
           </div>
           {behaviorResult ? (
-            <div className="p-5 space-y-4">
+            <div className="p-4 sm:p-5 space-y-4">
               {behaviorResult.behavior_summary && (
                 <div className="p-3 bg-muted rounded-lg">
                   <p className="text-sm text-foreground/80">{behaviorResult.behavior_summary}</p>
@@ -204,7 +206,7 @@ export default function AIInsightsPage() {
                   <div className="space-y-1.5">
                     {behaviorResult.patterns.map((p, i) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-                        <span className="text-blue-400 mt-0.5">-</span>
+                        <span className="text-blue-400 mt-0.5 shrink-0">-</span>
                         {p}
                       </div>
                     ))}
@@ -217,9 +219,9 @@ export default function AIInsightsPage() {
                   <div className="space-y-1.5">
                     {behaviorResult.anomalies.map((a, i) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-                        <span className="text-yellow-400 mt-0.5">-</span>
+                        <span className="text-yellow-400 mt-0.5 shrink-0">-</span>
                         {a.description}
-                        <span className={cn('text-xs px-1.5 py-0.5 rounded', {
+                        <span className={cn('text-xs px-1.5 py-0.5 rounded shrink-0', {
                           'bg-red-500/20 text-red-400': a.severity === 'high',
                           'bg-yellow-500/20 text-yellow-400': a.severity !== 'high',
                         })}>{a.severity}</span>
@@ -234,7 +236,7 @@ export default function AIInsightsPage() {
                   <div className="space-y-1.5">
                     {behaviorResult.trends.map((t, i) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-                        <span className="text-green-400 mt-0.5">-</span>
+                        <span className="text-green-400 mt-0.5 shrink-0">-</span>
                         {t.pattern}: {t.frequency} ({t.direction})
                       </div>
                     ))}
@@ -247,7 +249,7 @@ export default function AIInsightsPage() {
                   <div className="space-y-1.5">
                     {behaviorResult.potential_causes.map((c, i) => (
                       <div key={i} className="flex items-start gap-2 text-sm text-foreground/80">
-                        <span className="text-orange-400 mt-0.5">-</span>
+                        <span className="text-orange-400 mt-0.5 shrink-0">-</span>
                         {c}
                       </div>
                     ))}
@@ -266,7 +268,7 @@ export default function AIInsightsPage() {
               )}
             </div>
           ) : (
-            <div className="p-12 text-center text-muted-foreground text-sm">
+            <div className="p-8 sm:p-12 text-center text-muted-foreground text-sm">
               Select an employee and click "Behavior Analysis" to analyze
             </div>
           )}

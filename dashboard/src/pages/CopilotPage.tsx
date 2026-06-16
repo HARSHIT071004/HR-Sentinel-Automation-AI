@@ -96,10 +96,10 @@ export default function CopilotPage() {
   return (
     <div className="min-h-full flex flex-col bg-background">
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4">
         {localMessages.length === 0 && !streaming && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="text-lg font-semibold text-foreground mb-1">How can I help you?</h2>
+          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-1">How can I help you?</h2>
             <p className="text-sm text-muted-foreground max-w-md">
               Ask me anything about HR policies, attendance data, or workforce insights.
             </p>
@@ -126,10 +126,10 @@ export default function CopilotPage() {
 
         {localMessages.map((msg) => (
           <div key={msg.id} className={cn('flex', msg.role === 'user' ? 'justify-end' : 'justify-start')}>
-            <div className={cn('max-w-[70%] space-y-2')}>
+            <div className={cn('max-w-[85%] sm:max-w-[70%] space-y-2')}>
               <div
                 className={cn(
-                  'rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
+                  'rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-sm leading-relaxed',
                   msg.role === 'user'
                     ? 'bg-primary text-primary-foreground rounded-tr-sm'
                     : 'bg-card border border-border rounded-tl-sm text-foreground/90'
@@ -169,7 +169,7 @@ export default function CopilotPage() {
       </div>
 
       {/* Input */}
-      <div className="px-6 py-4 shrink-0">
+      <div className="px-3 sm:px-6 py-3 sm:py-4 shrink-0">
         <div className="max-w-3xl mx-auto border border-border rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
           <textarea
             ref={inputRef as any}
@@ -179,10 +179,11 @@ export default function CopilotPage() {
             placeholder="Ask about HR policies, attendance data..."
             disabled={streaming}
             rows={2}
-            className="w-full px-5 pt-4 pb-2 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none disabled:opacity-50"
+            className="w-full px-4 sm:px-5 pt-4 pb-2 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none disabled:opacity-50"
             style={{ fieldSizing: 'content' } as any}
           />
-          <div className="flex items-center justify-end px-3 pb-3">
+          <div className="flex items-center justify-between px-3 sm:px-4 pb-3">
+            <span className="text-[10px] text-muted-foreground hidden sm:inline">Enter to send</span>
             <button
               onClick={handleSend}
               disabled={!input.trim() || streaming}

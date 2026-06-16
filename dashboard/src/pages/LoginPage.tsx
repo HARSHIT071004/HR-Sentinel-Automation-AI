@@ -29,17 +29,17 @@ export default function LoginPage() {
     <div className="min-h-screen relative bg-background">
       <BackgroundPaths />
 
-      <div className="absolute inset-0 flex items-center justify-center z-10">
-        <div className="w-full max-w-md px-4">
-          <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
-              <span className="text-primary-foreground font-bold text-xl">HR</span>
+      <div className="absolute inset-0 flex items-center justify-center z-10 p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg shadow-primary/25">
+              <span className="text-primary-foreground font-bold text-lg sm:text-xl">HR</span>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">HR Sentinel AI</h1>
-            <p className="text-muted-foreground mt-1">Workforce Intelligence Platform</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">HR Sentinel AI</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Workforce Intelligence Platform</p>
           </div>
 
-          <div className="bg-card/90 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-2xl">
+          <div className="bg-card/90 backdrop-blur-xl border border-border rounded-2xl p-5 sm:p-8 shadow-2xl">
             {error && (
               <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
                 {error}

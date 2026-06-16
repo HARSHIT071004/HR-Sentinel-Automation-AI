@@ -61,3 +61,10 @@ backend/alembic/versions/
 
 # Logs
 *.log
+
+# Setup / guide docs (not part of app code)
+VERCEL_*.md
+DEPLOY_VERCEL.md
+OPENROUTER_SETUP.md
+ROOT_CAUSE_*.md
+AFTER_*.md
